@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3e41e487-d510-467f-ab9d-bcc5aec61ea1" name="Default Changelist" comment="" />
+    <list default="true" id="3e41e487-d510-467f-ab9d-bcc5aec61ea1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/test/upgrade/Logic.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/upgrade/ProxyAdmin.sol" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/upgrade/ProxyData.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/java/com/dechain/contract/Redpack_sol_Redpack.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/java/com/dechain/contract/Register_sol_Register.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Redpack_sol_IERC20.abi" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Redpack_sol_IERC20.bin" beforeDir="false" afterPath="$PROJECT_DIR$/test/Profit.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Redpack_sol_Redpack.abi" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Redpack_sol_Redpack.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Register_sol_NFTRegister.abi" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Register_sol_NFTRegister.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Register_sol_Register.abi" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/Register_sol_Register.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/PayCenter.sol" beforeDir="false" afterPath="$PROJECT_DIR$/test/PayCenter.sol" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/PubToken.sol" beforeDir="false" afterPath="$PROJECT_DIR$/test/PubToken.sol" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -9,6 +26,9 @@
   </component>
   <component name="DefaultGradleProjectSettings">
     <option name="isMigrated" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
@@ -19,6 +39,7 @@
     </option>
   </component>
   <component name="ProjectId" id="207zZzRY7UqWIgrV9ZKmYJBqIHD" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -198,7 +219,9 @@
       <workItem from="1644487029824" duration="11285000" />
       <workItem from="1644566704537" duration="2894000" />
       <workItem from="1644807815155" duration="7014000" />
-      <workItem from="1644906388648" duration="6488000" />
+      <workItem from="1644906388648" duration="7043000" />
+      <workItem from="1645604575784" duration="3692000" />
+      <workItem from="1645696541991" duration="7964000" />
     </task>
     <servers />
   </component>

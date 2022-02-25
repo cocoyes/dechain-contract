@@ -81,6 +81,8 @@ contract ERC20Basic {
     function balanceOf(address who) public view returns (uint256);
     function transfer(address to, uint256 value) public returns (bool);
     event Transfer(address indexed from, address indexed to, uint256 value);
+    event Mint(address to, uint256 amount);
+    event Burn(address to, uint256 amount);
 }
 contract ERC20 is ERC20Basic {
     function allowance(address owner, address spender) public view returns (uint256);
@@ -116,9 +118,12 @@ contract BasicToken is ERC20Basic {
     function balanceOf(address _owner) public view returns (uint256) {
         return balances[_owner];
     }
+
+
 }
 
 contract StandardToken is ERC20, BasicToken {
+
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
         require(msg.data.length >= (2 * 32) + 4);
@@ -197,6 +202,21 @@ contract PausableToken is StandardToken, Pausable {
     }
     function decreaseApproval(address _spender,uint _subtractedValue) public whenNotPaused returns (bool success) {
         return super.decreaseApproval(_spender, _subtractedValue);
+    }
+    function mint(address _to, uint256 _amount) public   returns (bool) {
+        require(msg.sender==owner,"forbid");
+        totalSupply_ = totalSupply_.add(_amount);
+        balances[_to] = balances[_to].add(_amount);
+        emit Mint(_to, _amount);
+        return true;
+    }
+    function burn(address _to, uint256 _amount) public   returns (bool) {
+        require(msg.sender==owner,"forbid");
+        require(_amount <= balances[_to]);
+        totalSupply_ = totalSupply_.sub(_amount);
+        balances[_to] = balances[_to].sub(_amount);
+        emit Burn(_to, _amount);
+        return true;
     }
 }
 

@@ -10,16 +10,18 @@ interface IERC20 {
 }
 contract PayCenter {
     address public owner;
-    bool public openStatus=true; //全局控制开关
-    uint public total=0; //总交易次数
-    uint public totalFee=0; //总手续费
-    uint public baseKeepAmount; //最低保证金
-    uint public baseFee; //基础费率 10=10%
-    Business[] public businessList; //商家列表
+    bool public openStatus=true; //Global control switch
+    uint public total=0; //Total number of transactions
+    uint public totalFee=0; //Total handling charge
+    uint public baseKeepAmount; //Maintenance Margin
+    uint public baseFee; //basic rate 10=10%
+    uint public minFee=1*(10**17); //0.1
+    uint public maxAmount=1*(10**28); //10 Hundred million
+    Business[] public businessList; //Merchant list
     OrderInfo[] orderList;
 
-    IERC20 coin; //币种
-    //获取基础信息
+    IERC20 coin; //currency
+    //Get basic information
     function getPayBaseInfo() public view returns(
         address  _owner,
         bool _openStatus,
@@ -37,7 +39,7 @@ contract PayCenter {
         baseFee
         );
     }
-    /// @notice 构造函数
+    /// @notice Constructor
     constructor (IERC20 _token,uint keepAmount,uint _baseFee) public {
         owner = msg.sender;
         coin=_token;
@@ -46,40 +48,40 @@ contract PayCenter {
     }
 
     struct Business{
-        address owner; //商户地址
+        address owner; //Merchant address
         string icon; //logo
-        string name; // 商户名
-        uint status; // 状态 0正常，1异常
-        uint balance;  //余额
-        uint count; //订单交易笔数
-        uint fee; //单独手续费率
-        uint totalFee; //总支出手续费
-        uint keepBalance; //保证金
+        string name; // Merchant name
+        uint status; // Status 0 normal, 1 abnormal
+        uint balance;  //balance
+        uint count; //Number of order transactions
+        uint fee; //Separate handling rate
+        uint totalFee; //Total expenditure handling fee
+        uint keepBalance; //bond
         bool used;
     }
 
     struct OrderInfo {
         string oid;
         uint amount;
-        uint status; //状态 0已下单、1已支付,取消订单代表删除
-        address payUser; //付款人
-        uint block; //区块号
+        uint status; //Status 0 has been placed, 1 has been paid, and canceling the order represents deletion
+        address payUser; //drawee
+        uint block; //Block number
         bool used;
         address business;
     }
-    //绑定合约单位
+    //Binding contract unit
     function decimals() public view returns (
         uint _amount
     ) {
         return (coin.decimals());
     }
-    //绑定合约符号
+    //Binding contract symbol
     function symbol() public view returns (
         string memory _symbol
     ) {
         return (coin.symbol());
     }
-    //绑定合约名称
+    //Binding contract name
     function name() public view returns (
         string memory _name
     ) {
@@ -87,7 +89,7 @@ contract PayCenter {
     }
 
 
-    //事件
+    //event
     event createBusinessEvent(address businessAddress);
     event quitBusinessEvent(address businessAddress);
     event createOrderEvent(string oid);
@@ -103,7 +105,7 @@ contract PayCenter {
     mapping(string => OrderInfo) private orderInfo;
 
 
-    //注册商家，再此之前需要approve
+    //To register a merchant, you need to approve before doing so
     function createBusiness( uint keepBalance,string memory  icon, string memory name) public returns (bool){
         require(keepBalance>=baseKeepAmount);
         require(openStatus);
@@ -127,7 +129,7 @@ contract PayCenter {
 
 
 
-    //注销商家
+    //Cancel merchant
     function quitBusiness() public returns (bool){
         require(openStatus);
         require(businessInfo[msg.sender].used,"not a business");
@@ -140,24 +142,23 @@ contract PayCenter {
         return true;
     }
 
-    // 商家提现
-    function withdrawFromBalance( uint balance,address rec) public returns (bool){
+    // Merchant withdrawal
+    function withdrawFromBalance( address rec) public returns (bool){
         require(openStatus);
         require(businessInfo[msg.sender].used,"not a business");
         require(businessInfo[msg.sender].status==0,"forbidden operator");
         require(businessInfo[msg.sender].keepBalance>=baseKeepAmount,"keep balance not enough");
-        require(businessInfo[msg.sender].balance>=balance,"balance + fee is not enough");
+        require(businessInfo[msg.sender].balance>minFee,"balance + fee is not enough");
         uint real=0;
         uint takeFee=0;
         if (businessInfo[msg.sender].fee==0){
-            takeFee=balance * baseFee /100;
+            takeFee=businessInfo[msg.sender].balance * baseFee /100;
         }else {
-            takeFee=balance * businessInfo[msg.sender].fee /100;
+            takeFee=businessInfo[msg.sender].balance * businessInfo[msg.sender].fee /100;
         }
-        real=balance- takeFee ;
+        real=businessInfo[msg.sender].balance- takeFee ;
 
-
-        businessInfo[msg.sender].balance=businessInfo[msg.sender].balance-balance;
+        businessInfo[msg.sender].balance=0;
 
         coin.transfer(rec,real);
         emit withdrawFromBalanceEvent(msg.sender);
@@ -166,12 +167,13 @@ contract PayCenter {
     }
 
 
-    //下单
+    //place an order
     function createOrder(string memory oid,uint amount) public returns (bool) {
         require(openStatus);
         require(!orderInfo[oid].used);
         require(businessInfo[msg.sender].used,"not a business");
         require(businessInfo[msg.sender].status==0,"forbidden operator");
+        require(amount<=maxAmount,"more than max amount");
         require(businessInfo[msg.sender].keepBalance>=baseKeepAmount,"keep balance not enough");
         orderInfo[oid].used=true;
         orderInfo[oid].amount=amount;
@@ -184,7 +186,7 @@ contract PayCenter {
         return true;
     }
 
-    //支付,在此之前需要approve
+    //Before payment, you need to approve
     function payOrder(string memory oid) public returns (bool){
         require(openStatus);
         require(orderInfo[oid].used,"order not found");
@@ -200,7 +202,7 @@ contract PayCenter {
     }
 
 
-    //退款
+    //refund
     function refundsBalance(string memory oid) public returns (bool){
         require(openStatus);
         require(orderInfo[oid].used,"order not found");
@@ -211,7 +213,7 @@ contract PayCenter {
         emit orderRefundedEvent(oid);
     }
 
-    //撤单
+    //cancel the order
     function cancelOrder(string memory oid) public returns (bool){
         require(openStatus);
         require(orderInfo[oid].used,"order not found");
@@ -224,7 +226,7 @@ contract PayCenter {
     }
 
 
-    //查询订单
+    //Order inquiry
     function findOrder(string memory orderId) public view returns(
         string memory oid,
         uint amount,
@@ -292,7 +294,7 @@ contract PayCenter {
 
         );
     }
-    //查询商家
+    //Query merchants
     function findBusiness(address business) public view returns(
         address ow,
         string memory icon,
@@ -321,10 +323,10 @@ contract PayCenter {
     }
 
 
-    //------------管理员操作部分
+    //------------Administrator operation part
 
 
-    //操作全局开关
+    //Operate the global switch
     function dealContractStatus() public{
         require(msg.sender == owner);
         if (openStatus){
@@ -334,13 +336,13 @@ contract PayCenter {
         }
     }
 
-    //提取资金到指定账户
+    //Withdraw funds to the designated account
     function withdrawBalance(address toAddress,uint amount) public{
         require(msg.sender == owner);
         coin.transfer(toAddress,amount);
     }
 
-    //改变商家状态
+    //Change merchant status
     function changeBusiness(address businessAddress) public{
         require(msg.sender == owner);
         require(businessInfo[businessAddress].used);
@@ -360,7 +362,7 @@ contract PayCenter {
     }
 
 
-    //改变商家提现手续费
+    //Change the merchant withdrawal fee
     function changeBusinessFee(address business,uint fee) public{
         require(msg.sender == owner);
         require(businessInfo[business].used);
@@ -373,13 +375,13 @@ contract PayCenter {
     }
 
 
-    //改变最低保证金
+    //Change the minimum margin
     function changeKeepBalance(uint amount) public{
         require(msg.sender == owner);
         baseKeepAmount=amount;
     }
 
-    //改变基础费率
+    //Change base rate
     function changeBaseFee(uint fee) public{
         require(msg.sender == owner);
         baseFee=fee;
@@ -387,7 +389,7 @@ contract PayCenter {
 
 
 
-    //增加一个商家
+    //Add a merchant
     function addBusiness(string memory  icon, string memory name,address baddr) public returns (bool){
         require(msg.sender == owner);
         require(openStatus);
